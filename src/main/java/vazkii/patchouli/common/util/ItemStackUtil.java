@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -15,6 +16,7 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -123,10 +125,10 @@ public final class ItemStackUtil {
 		List<ItemStack> stacks = new ArrayList<>();
 		for (String s : stacksSerialized) {
 			if (s.startsWith("tag:")) {
-				Tag<Item> tag = ItemTags.getAllTags().getTag(new ResourceLocation(s.substring(4)));
+				TagKey<Item> tag = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(s.substring(4)));
 				if (tag != null) {
-					for (Item item : tag.getValues()) {
-						stacks.add(new ItemStack(item));
+					for (Holder<Item> itemHolder : Registry.ITEM.getTagOrEmpty(tag)) {
+						stacks.add(new ItemStack(itemHolder));
 					}
 				}
 			} else {
